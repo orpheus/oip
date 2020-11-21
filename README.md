@@ -5,9 +5,14 @@
 [![License](https://img.shields.io/github/license/oipwg/oip.svg)](https://github.com/oipwg/oip/blob/master/LICENSE.md) [![Image Pulls](https://img.shields.io/docker/pulls/mediciland/oip.svg)](https://hub.docker.com/r/mediciland/oip) [![Image Stars](https://img.shields.io/docker/stars/mediciland/oip.svg)](https://hub.docker.com/r/mediciland/oip)
 
 # Build
-`chmod -x cmd/oipd/build.sh`
+`chmod +x cmd/oipd/build.sh`
 
 `./cmd/oipd/build.sh`
+
+# Run
+`chmod +x cmd/oipd/run.sh`
+
+`./cmd/oipd.run.sh` or `LOG=* go run ./cmd/oipd/*.go`
 
 # Docker Image
 The included Docker image runs the following software in tandem to allow access to a fully functional OIP stack.
