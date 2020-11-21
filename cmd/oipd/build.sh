@@ -2,6 +2,6 @@
 
 go build -o ../../bin/ ./oipd.go ./log.go
 
-echo "OIPd Built"
+echo "OIPd Built. Output in bin/"
 
 
