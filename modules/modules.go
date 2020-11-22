@@ -13,7 +13,7 @@ var modules = map[string]Module{
 }
 
 type ModuleManager struct {
-	modules moduleMap
+	Modules moduleMap
 }
 
 type Module interface {
@@ -24,12 +24,24 @@ type Module interface {
 	Initialize()
 }
 
-func Initialize (ctx context.Context) *ModuleManager {
+func Initialize(ctx context.Context) *ModuleManager {
 	mm := &ModuleManager{
-		modules: modules,
+		Modules: modules,
 	}
 	for _, mod := range modules {
 		mod.ConnectToNode(ctx)
 	}
 	return mm
+}
+
+func (m *ModuleManager) GetModule(id string) Module {
+	return m.Modules[id]
+}
+
+func (m *ModuleManager) DeferAllModuleDisconnects() {
+	for _, mod := range m.Modules {
+		func() {
+			defer mod.DisconnectNode()
+		}()
+	}
 }

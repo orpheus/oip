@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/azer/logger"
 	"github.com/oipwg/oip/version"
 	"github.com/orpheus/oip/modules"
+	"github.com/orpheus/oip/modules/flod"
 	"github.com/orpheus/oip/util"
 )
 
@@ -12,6 +14,8 @@ func main() {
 	// create context
 	ctx := context.Background()
 	ctx, cancelRoot := context.WithCancel(ctx)
+	// handle daemon shutdowns
+	util.HandleSignalShutdown(cancelRoot)
 
 	// create config files if needed
 	util.CreateCpuProfileFile()
@@ -27,8 +31,16 @@ func main() {
 
 	// initialize modules
 	log.Info("\n Initialize Module Link \n ")
-	modules.Initialize(ctx)
+	mm := modules.Initialize(ctx)
 
-	// handle daemon shutdowns
-	util.CancelRoot(ctx, cancelRoot)
+	//mm.DeferAllModuleDisconnects()
+	//for _, mod := range mm.Modules {
+	//	func() {
+	//		defer mod.DisconnectNode()
+	//	}()
+	//}
+	fmt.Println(mm.GetModule(flod.ModuleId))
+
+	<-ctx.Done()
+	log.Info("Shut down daemon.")
 }

@@ -7,8 +7,7 @@ import (
 	"syscall"
 )
 
-func CancelRoot (ctx context.Context, cancelRoot context.CancelFunc) {
-
+func HandleSignalShutdown(cancelRoot context.CancelFunc) {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
@@ -16,7 +15,4 @@ func CancelRoot (ctx context.Context, cancelRoot context.CancelFunc) {
 		log.Info("Received signal %s", sig)
 		cancelRoot()
 	}()
-
-	<-ctx.Done()
-	log.Info("Shut down daemon.")
 }
