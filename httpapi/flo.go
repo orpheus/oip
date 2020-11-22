@@ -15,9 +15,9 @@ func init() {
 	rootRouter.HandleFunc("/floData/latest", handleFloDataLatest)
 	rootRouter.HandleFunc("/floData/search", handleFloDataSearch).Queries("q", "{query}")
 
-	rootRouter.HandleFunc("/flo/tx/latest", handleFloTxLatest)
-	rootRouter.HandleFunc("/flo/tx/get/{id:[a-f0-9]+}", handleGetFloTx)
-	rootRouter.HandleFunc("/flo/tx/search", handleFloTxSearch).Queries("q", "{query}")
+	rootRouter.HandleFunc("/flod/tx/latest", handleFloTxLatest)
+	rootRouter.HandleFunc("/flod/tx/get/{id:[a-f0-9]+}", handleGetFloTx)
+	rootRouter.HandleFunc("/flod/tx/search", handleFloTxSearch).Queries("q", "{query}")
 }
 
 var (

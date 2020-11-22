@@ -97,7 +97,7 @@ func (a *Address) SendToBlockchain(floData []byte) (*SendToBlockchainResult, err
 	}
 
 	if len(floData) > MaxFloDataLen {
-		return nil, errors.New("maximum flo data length exceeded, send as multipart")
+		return nil, errors.New("maximum flod data length exceeded, send as multipart")
 	}
 
 	a.utxoLock.Lock()

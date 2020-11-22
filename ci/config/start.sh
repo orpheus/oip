@@ -77,7 +77,7 @@ then
 	echo addpeer="$ADDNODE" >> /data/flod/flod.conf
 fi
 
-## Add RPC settings to flo config
+## Add RPC settings to flod config
 echo rpclisten=:8334 >> /data/flod/flod.conf
 echo rpcuser="$RPC_USER" > /data/flod/floctl.conf
 echo rpcpass="$RPC_PASSWORD" >> /data/flod/floctl.conf

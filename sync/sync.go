@@ -15,9 +15,9 @@ import (
 
 func init() {
 	log.Info("Subscribing to events")
-	events.SubscribeAsync("flo:notify:onFilteredBlockConnected", onFilteredBlockConnected)
-	events.SubscribeAsync("flo:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected)
-	events.SubscribeAsync("flo:notify:onTxAcceptedVerbose", onTxAcceptedVerbose)
+	events.SubscribeAsync("flod:notify:onFilteredBlockConnected", onFilteredBlockConnected)
+	events.SubscribeAsync("flod:notify:onFilteredBlockDisconnected", onFilteredBlockDisconnected)
+	events.SubscribeAsync("flod:notify:onTxAcceptedVerbose", onTxAcceptedVerbose)
 }
 
 var gapConnecting = false
@@ -111,7 +111,7 @@ func onTxAcceptedVerbose(txDetails *flojson.TxRawResult) {
 
 	datastore.AutoBulk.StoreTransaction(tx)
 	if len(tx.Transaction.FloData) != 0 {
-		events.Publish("flo:floData", tx.Transaction.FloData, tx)
+		events.Publish("flod:floData", tx.Transaction.FloData, tx)
 	}
 }
 
