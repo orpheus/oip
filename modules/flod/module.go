@@ -10,7 +10,7 @@ import (
 
 const ModuleId = "flod-default"
 
-var FlodModule = module{
+var FlodModule = &module{
 	id: ModuleId,
 }
 
@@ -23,12 +23,12 @@ type module struct {
 }
 
 // Get the Module ID
-func (m module) GetId() string {
+func (m *module) ID() string {
 	return m.id
 }
 
 // Wait for node be found & add rpc client
-func (m module) ConnectToNode(ctx context.Context) {
+func (m *module) ConnectToNode(ctx context.Context) {
 	// add context to node
 	m.ctx = ctx
 	log.Info("Added Context", logger.Attrs{"module-context": m.ctx})
@@ -51,28 +51,31 @@ func (m module) ConnectToNode(ctx context.Context) {
 		return
 	}
 
-	log.Info("Connected", logger.Attrs{"module": m.GetId()})
+	log.Info("Connected Module", logger.Attrs{"module": m.ID()})
 
 	m.client = client
-	log.Info("Added Client", logger.Attrs{"module-client": m.client})
 
 	// set is active
 	m.active = true
 }
 
 // Disconnect rpc client
-func (m module) DisconnectNode() {
+func (m *module) DisconnectNode() {
 	// disconnect node
 	m.client.Disconnect()
 	// set is not active
 	m.active = false
-	log.Info("Disconnected", logger.Attrs{"module": m.GetId()})
+	log.Info("Disconnected", logger.Attrs{"module": m.ID()})
 }
 
 // Initialize side effects
-func (m module) Initialize() {}
+func (m *module) Initialize() {}
 
 // Is the rpc connection current
-func (m module) IsActive() bool {
+func (m module) Active() bool {
 	return m.active
+}
+
+func (m *module) SetActive(active bool) {
+	m.active = active
 }

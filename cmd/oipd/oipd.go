@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/azer/logger"
 	"github.com/oipwg/oip/version"
 	"github.com/orpheus/oip/modules"
-	"github.com/orpheus/oip/modules/flod"
 	"github.com/orpheus/oip/util"
 )
 
@@ -31,16 +29,10 @@ func main() {
 
 	// initialize modules
 	log.Info("\n Initialize Module Link \n ")
-	mm := modules.Initialize(ctx)
 
-	//mm.DeferAllModuleDisconnects()
-	//for _, mod := range mm.Modules {
-	//	func() {
-	//		defer mod.DisconnectNode()
-	//	}()
-	//}
-	fmt.Println(mm.GetModule(flod.ModuleId))
+	mm := modules.Initialize(ctx)
+	defer mm.DisconnectNodes()
 
 	<-ctx.Done()
-	log.Info("Shut down daemon.")
+	log.Info("Shutting down daemon...")
 }

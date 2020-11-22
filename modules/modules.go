@@ -9,7 +9,7 @@ type moduleMap map[string]Module
 
 // Add modules here until I can find a way to auto add them
 var modules = map[string]Module{
-	flod.FlodModule.GetId(): flod.FlodModule,
+	flod.FlodModule.ID(): flod.FlodModule,
 }
 
 type ModuleManager struct {
@@ -17,11 +17,12 @@ type ModuleManager struct {
 }
 
 type Module interface {
-	GetId() string
+	ID() string
 	ConnectToNode(ctx context.Context)
 	DisconnectNode()
-	IsActive() bool
+	Active() bool
 	Initialize()
+	SetActive(bool)
 }
 
 func Initialize(ctx context.Context) *ModuleManager {
@@ -38,10 +39,8 @@ func (m *ModuleManager) GetModule(id string) Module {
 	return m.Modules[id]
 }
 
-func (m *ModuleManager) DeferAllModuleDisconnects() {
+func (m *ModuleManager) DisconnectNodes() {
 	for _, mod := range m.Modules {
-		func() {
-			defer mod.DisconnectNode()
-		}()
+		mod.DisconnectNode()
 	}
 }

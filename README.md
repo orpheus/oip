@@ -5,14 +5,28 @@
 [![License](https://img.shields.io/github/license/oipwg/oip.svg)](https://github.com/oipwg/oip/blob/master/LICENSE.md) [![Image Pulls](https://img.shields.io/docker/pulls/mediciland/oip.svg)](https://hub.docker.com/r/mediciland/oip) [![Image Stars](https://img.shields.io/docker/stars/mediciland/oip.svg)](https://hub.docker.com/r/mediciland/oip)
 
 # Build
-`chmod +x cmd/oipd/build.sh`
+Give execute access to script first:  
+`chmod +x ./build.sh`
 
-`./cmd/oipd/build.sh`
+`./build.sh`
 
 # Run
-`chmod +x cmd/oipd/run.sh`
+Give execute access to script first:  
+`chmod +x ./run.sh`
 
-`./cmd/oipd.run.sh` or `LOG=* go run ./cmd/oipd/*.go`
+Then run program with either of the following commands  
+`./run.sh` or `LOG=* go run ./cmd/oipd/*.go`
+
+or after **Build**:  
+`LOG=* ./bin/oipd`
+
+# Config
+`Mac`: `~/Library/Application\ /Support/Oipd`
+
+Else, probably: `~/.oipd`
+
+You'll need to set the flod `rpcuser` and `rpcpass` in the config.  
+Look at the flod config (either in Application Support for mac or `~/flod`) to see what the rpc settings are and copy them to the oipd config.
 
 # Docker Image
 The included Docker image runs the following software in tandem to allow access to a fully functional OIP stack.
@@ -85,5 +99,6 @@ To easily run a development server, ensure you have docker installed, and then r
 
 # Contacts
 - bitspill, bitspill@oip.dev
+- ohryan ryanachacon@gmail.com
 - Chris Chrysostom, cchrysostom@mediciland.com
 - Sky Young, skyoung@mediciland.com
