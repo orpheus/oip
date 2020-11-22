@@ -1,5 +1,5 @@
 #!/bin/bash
 
-LOG=* go run *.go
+LOG=* go run ./cmd/oipd/*.go
 
 
