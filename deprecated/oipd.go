@@ -2,7 +2,7 @@ package deprecated
 
 import (
 	"context"
-	"github.com/orpheus/oip/helpers"
+	"github.com/orpheus/oip/util"
 	"os"
 	"os/signal"
 	"runtime/pprof"
@@ -23,7 +23,7 @@ import (
 )
 
 func main() {
-	helpers.CreateCpuProfileFile()
+	util.CreateCpuProfileFile()
 
 	log.Info("\n Beginning Module Link \n ")
 	log.Info(" OIP Daemon ", logger.Attrs{

@@ -18,11 +18,11 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/oipwg/oip/config"
-	"github.com/oipwg/oip/events"
 )
 
 var (
 	clients []*rpcclient.Client
+	nilClient = &rpcclient.Client{}
 )
 
 func AddCore(host, user, pass string) error {
@@ -38,7 +38,7 @@ func AddCore(host, user, pass string) error {
 	return err
 }
 
-func WaitForFlod(ctx context.Context, host, user, pass string, tls bool) error {
+func WaitForFlod(ctx context.Context, host, user, pass string, tls bool) (client *rpcclient.Client, err error) {
 	attempts := 0
 	a := logger.Attrs{"host": host, "attempts": attempts}
 	b := backoff.NewWithoutJitter(10*time.Minute, 1*time.Second)
@@ -48,7 +48,7 @@ func WaitForFlod(ctx context.Context, host, user, pass string, tls bool) error {
 		attempts++
 		a["attempts"] = attempts
 		log.Info("attempting connection to flod", a)
-		err := AddFlod(host, user, pass, tls)
+		client, err = AddFlod(host, user, pass, tls)
 		if err != nil {
 			a["err"] = err
 			log.Error("unable to connect to flod", a)
@@ -56,7 +56,7 @@ func WaitForFlod(ctx context.Context, host, user, pass string, tls bool) error {
 			c := errors.Cause(err)
 			if _, ok := c.(*net.OpError); !ok {
 				// not a network error, something else is wrong
-				return err
+				return nilClient, err
 			}
 			// it's a network error, delay and retry
 			d := b.Duration()
@@ -67,7 +67,7 @@ func WaitForFlod(ctx context.Context, host, user, pass string, tls bool) error {
 			case <-ctx.Done():
 				a["err"] = ctx.Err()
 				log.Error("context timeout/cancelled", a)
-				return ctx.Err()
+				return nilClient, ctx.Err()
 			case <-time.After(d):
 				// loop around for another try
 			}
@@ -75,36 +75,21 @@ func WaitForFlod(ctx context.Context, host, user, pass string, tls bool) error {
 			break
 		}
 	}
-	return nil
+	return client, nil
 }
 
-func AddFlod(host, user, pass string, tls bool) error {
+func AddFlod(host, user, pass string, tls bool) (*rpcclient.Client, error) {
 	var certs []byte
 	var err error
 	if tls {
 		certFile := config.GetFilePath("flod.certFile")
 		certs, err = ioutil.ReadFile(certFile)
 		if err != nil {
-			return errors.Wrap(err, "unable to read rpc.cert")
+			return nilClient, errors.Wrap(err, "unable to read rpc.cert")
 		}
 	}
 
-	ntfnHandlers := rpcclient.NotificationHandlers{
-		OnFilteredBlockConnected: func(height int32, header *wire.BlockHeader, txns []*floutil.Tx) {
-			log.Info("Block connected: %v (%d) %v",
-				header.BlockHash(), height, header.Timestamp)
-			events.Publish("flod:notify:onFilteredBlockConnected", height, header, txns)
-		},
-		OnFilteredBlockDisconnected: func(height int32, header *wire.BlockHeader) {
-			log.Info("Block disconnected:  %v (%d) %v",
-				header.BlockHash(), height, header.Timestamp)
-			events.Publish("flod:notify:onFilteredBlockDisconnected", height, header)
-		},
-		OnTxAcceptedVerbose: func(txDetails *flojson.TxRawResult) {
-			log.Info("Incoming TX: %v (Block: %v) floData: %v", txDetails.Txid, txDetails.BlockHash, txDetails.FloData)
-			events.Publish("flod:notify:onTxAcceptedVerbose", txDetails)
-		},
-	}
+	ntfnHandlers := addFlodNotificationHandlers()
 
 	cfg := &rpcclient.ConnConfig{
 		Host:         host,
@@ -114,12 +99,30 @@ func AddFlod(host, user, pass string, tls bool) error {
 		DisableTLS:   !tls,
 		Certificates: certs,
 	}
-	c, err := rpcclient.New(cfg, &ntfnHandlers)
+	client, err := rpcclient.New(cfg, &ntfnHandlers)
 	if err != nil {
-		return errors.Wrap(err, "unable to create new rpc client")
+		return nilClient, errors.Wrap(err, "unable to create new rpc client")
 	}
-	clients = append(clients, c)
-	return nil
+	return client, nil
+}
+
+func addFlodNotificationHandlers () rpcclient.NotificationHandlers {
+	return rpcclient.NotificationHandlers{
+		OnFilteredBlockConnected: func(height int32, header *wire.BlockHeader, txns []*floutil.Tx) {
+			log.Info("Block connected: %v (%d) %v",
+				header.BlockHash(), height, header.Timestamp)
+			//events.Publish("flod:notify:onFilteredBlockConnected", height, header, txns)
+		},
+		OnFilteredBlockDisconnected: func(height int32, header *wire.BlockHeader) {
+			log.Info("Block disconnected:  %v (%d) %v",
+				header.BlockHash(), height, header.Timestamp)
+			//events.Publish("flod:notify:onFilteredBlockDisconnected", height, header)
+		},
+		OnTxAcceptedVerbose: func(txDetails *flojson.TxRawResult) {
+			log.Info("Incoming TX: %v (Block: %v) floData: %v", txDetails.Txid, txDetails.BlockHash, txDetails.FloData)
+			//events.Publish("flod:notify:onTxAcceptedVerbose", txDetails)
+		},
+	}
 }
 
 func Disconnect() {

@@ -1,10 +1,12 @@
 # OIPd Modules
 
+## wip... 
+
 Modules 
     
     - define node connection interfaces and methods
     - contain default node configurations
-    - initialize side effects post node-connections
+    - initialize side effects
     
   A Module is a directory
     

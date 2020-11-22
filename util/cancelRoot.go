@@ -1,4 +1,4 @@
-package helpers
+package util
 
 import (
 	"context"
@@ -7,9 +7,7 @@ import (
 	"syscall"
 )
 
-func CancelRoot () {
-	rootContext := context.Background()
-	rootContext, cancelRoot := context.WithCancel(rootContext)
+func CancelRoot (ctx context.Context, cancelRoot context.CancelFunc) {
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
@@ -19,6 +17,6 @@ func CancelRoot () {
 		cancelRoot()
 	}()
 
-	<-rootContext.Done()
+	<-ctx.Done()
 	log.Info("Shut down daemon.")
 }

@@ -1,6 +1,9 @@
 package modules
 
-import "github.com/orpheus/oip/modules/flod"
+import (
+	"context"
+	"github.com/orpheus/oip/modules/flod"
+)
 
 type moduleMap map[string]Module
 
@@ -15,18 +18,18 @@ type ModuleManager struct {
 
 type Module interface {
 	GetId() string
-	ConnectToNode()
+	ConnectToNode(ctx context.Context)
 	DisconnectNode()
+	IsActive() bool
 	Initialize()
-	IsActive()
 }
 
-func Initialize () *ModuleManager {
+func Initialize (ctx context.Context) *ModuleManager {
 	mm := &ModuleManager{
 		modules: modules,
 	}
 	for _, mod := range modules {
-		mod.ConnectToNode()
+		mod.ConnectToNode(ctx)
 	}
 	return mm
 }
