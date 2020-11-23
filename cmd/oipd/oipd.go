@@ -28,9 +28,8 @@ func main() {
 	})
 
 	// initialize modules
-	log.Info("\n Initialize Module Link \n ")
-
 	mm := modules.Initialize(ctx)
+	log.Info("Initialized Modules")
 	defer mm.DisconnectNodes()
 
 	<-ctx.Done()

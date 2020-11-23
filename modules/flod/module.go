@@ -75,7 +75,3 @@ func (m *module) Initialize() {}
 func (m module) Active() bool {
 	return m.active
 }
-
-func (m *module) SetActive(active bool) {
-	m.active = active
-}

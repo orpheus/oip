@@ -25,19 +25,6 @@ var (
 	nilClient = &rpcclient.Client{}
 )
 
-func AddCore(host, user, pass string) error {
-	cfg := &rpcclient.ConnConfig{
-		Host:         host,
-		User:         user,
-		Pass:         pass,
-		DisableTLS:   true,
-		HTTPPostMode: true,
-	}
-	c, err := rpcclient.New(cfg, nil)
-	clients = append(clients, c)
-	return err
-}
-
 func WaitForFlod(ctx context.Context, host, user, pass string, tls bool) (client *rpcclient.Client, err error) {
 	attempts := 0
 	a := logger.Attrs{"host": host, "attempts": attempts}

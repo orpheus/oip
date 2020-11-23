@@ -2,14 +2,15 @@ package modules
 
 import (
 	"context"
-	"github.com/orpheus/oip/modules/flod"
+	"github.com/orpheus/oip/modules/flocore"
 )
 
 type moduleMap map[string]Module
 
 // Add modules here until I can find a way to auto add them
 var modules = map[string]Module{
-	flod.FlodModule.ID(): flod.FlodModule,
+	//flod.FlodModule.ID(): flod.FlodModule,
+	flocore.FlocoreModule.ID(): flocore.FlocoreModule,
 }
 
 type ModuleManager struct {
@@ -22,7 +23,6 @@ type Module interface {
 	DisconnectNode()
 	Active() bool
 	Initialize()
-	SetActive(bool)
 }
 
 func Initialize(ctx context.Context) *ModuleManager {
