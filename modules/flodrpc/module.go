@@ -1,22 +1,20 @@
-package flod
+package flodrpc
 
 import (
 	"context"
 	"github.com/azer/logger"
-	"github.com/bitspill/flod/rpcclient"
-	"github.com/spf13/viper"
-	"time"
+	"net/rpc"
 )
 
-const ModuleId = "flod-default"
+const ModuleId = "flodrpc-default"
 
-var FlodModule = &module{
+var FlodRPCModule = &module{
 	id: ModuleId,
 }
 
 type module struct {
 	id     string
-	client *rpcclient.Client
+	client *rpc.Client
 	active bool
 	config interface{}
 	ctx    context.Context
@@ -32,39 +30,28 @@ func (m *module) ConnectToNode(ctx context.Context, Ready chan bool) {
 	// add context to node
 	m.ctx = ctx
 
-	// create timeout context
-	tenMinuteCtx, cancel := context.WithTimeout(ctx, 10*time.Minute)
-	defer cancel()
-
-	// get flod rpc config
-	host := viper.GetString("flod.host")
-	user := viper.GetString("flod.user")
-	pass := viper.GetString("flod.pass")
-	tls := viper.GetBool("flod.tls")
-
-	// wait to connect to flod and add rpc client
-	client, err := WaitForFlod(tenMinuteCtx, host, user, pass, tls)
+	c, err := DialRPCNode()
 	if err != nil {
-		log.Error("Unable to connect to Flod", logger.Attrs{"host": host, "err": err})
-		log.Error("Shutting down flod-module...")
+		log.Error("Failed to DIAL flod node via rpc", logger.Attrs{"err": err})
 		return
 	}
-
 	log.Info("Connected Module", logger.Attrs{"module": m.ID()})
 
-	m.client = client
-
-	// set is active
+	m.client = c
 	m.active = true
-
 	Ready <- true
+}
+
+func DialRPCNode () (*rpc.Client, error) {
+	// wait for connection
+	return rpc.Dial("tcp", "localhost:8334")
 }
 
 // Disconnect rpc client
 func (m *module) DisconnectNode() {
 	if m.Active() {
 		// disconnect node
-		m.client.Disconnect()
+		m.client.Close()
 		// set is not active
 		m.active = false
 		log.Info("Disconnected", logger.Attrs{"module": m.ID()})

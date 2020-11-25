@@ -28,8 +28,11 @@ func main() {
 	})
 
 	// initialize modules
+	log.Info("Initializing modules...")
 	mm := modules.Initialize(ctx)
-	log.Info("Initialized Modules")
+	log.Info("Modules Initialized")
+
+	log.Info("Defer Module Shutdown")
 	defer mm.DisconnectNodes()
 
 	<-ctx.Done()
