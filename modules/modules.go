@@ -11,7 +11,7 @@ type moduleMap map[string]Module
 
 // Add modules here until I can find a way to auto add them
 var modules = map[string]Module{
-	flod.FlodModule.ID(): flod.FlodModule,
+	flod.FlodModule.ID():       flod.FlodModule,
 	flodrpc.FlodRPCModule.ID(): flodrpc.FlodRPCModule,
 	//flocore.FlocoreModule.ID(): flocore.FlocoreModule,
 }
@@ -22,7 +22,7 @@ type ModuleManager struct {
 
 type Module interface {
 	ID() string
-	ConnectToNode(ctx context.Context, Ready chan bool)
+	ConnectToNode(ctx context.Context, Ready chan<- string)
 	DisconnectNode()
 	Active() bool
 	Initialize()
@@ -32,7 +32,7 @@ func Initialize(ctx context.Context) *ModuleManager {
 	mm := &ModuleManager{
 		Modules: modules,
 	}
-	modulesReady := make(chan bool, len(modules))
+	modulesReady := make(chan string, len(modules))
 
 	// concurrently connect to nodes
 	for _, mod := range modules {
@@ -40,9 +40,9 @@ func Initialize(ctx context.Context) *ModuleManager {
 	}
 
 	// wait for modules to be initialized
-	for _, mod := range modules {
-		<- modulesReady
-		log.Info("Link-Module Initialized", logger.Attrs{"ID": mod.ID()})
+	for range modules {
+		id := <-modulesReady
+		log.Info("Link-Module Initialized", logger.Attrs{"ID": id})
 	}
 
 	close(modulesReady)

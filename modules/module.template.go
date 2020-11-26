@@ -35,7 +35,9 @@ func (m *module) ID() string {
 }
 
 // Wait for node be found & add rpc client
-func (m *module) ConnectToNode(ctx context.Context) {
+// Accepts a Ready write-only channel that takes the string of the module
+// after the node has been successfully connected
+func (m *module) ConnectToNode(ctx context.Context, Ready chan<- string) {
 	// add context to node
 	m.ctx = ctx
 
@@ -45,6 +47,7 @@ func (m *module) ConnectToNode(ctx context.Context) {
 	//m.client = client
 	// set active
 	//m.active = true
+	Ready <- m.ID()
 }
 
 // Disconnect rpc client
